@@ -66,4 +66,8 @@
     [self pushView:networkList direction:ANViewSlideDirectionBackward];
 }
 
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
+    return YES;
+}
+
 @end
