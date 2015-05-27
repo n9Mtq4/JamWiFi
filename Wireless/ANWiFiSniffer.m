@@ -11,9 +11,13 @@
 @interface ANWiFiSniffer (Private)
 
 - (void)backgroundThread;
+
 - (void)informDelegateOpenFailed;
+
 - (void)informDelegateError:(NSError *)error;
+
 - (void)informDelegatePacket:(AN80211Packet *)packet;
+
 - (void)finishBackgroundThread;
 
 @end
@@ -69,7 +73,7 @@
             [self informDelegateOpenFailed];
             return;
         }
-        AN80211Packet * packet = nil;
+        AN80211Packet *packet = nil;
         while (true) {
             @autoreleasepool {
                 if ([[NSThread currentThread] isCancelled]) {
@@ -85,7 +89,7 @@
                 [channelLock unlock];
                 @try {
                     packet = [interface nextPacket:NO];
-                } @catch (NSException * exception) {
+                } @catch (NSException *exception) {
                     [self informDelegateError:[NSError errorWithDomain:@"pcap_next_ex" code:1 userInfo:nil]];
                     [interface closeInterface];
                     interface = nil;
@@ -97,7 +101,7 @@
                     return;
                 }
                 if (packet) [self informDelegatePacket:packet];
-                AN80211Packet * wPacket = nil;
+                AN80211Packet *wPacket = nil;
                 @synchronized (writeBuffer) {
                     if ([writeBuffer count] > 0) {
                         wPacket = [writeBuffer objectAtIndex:0];

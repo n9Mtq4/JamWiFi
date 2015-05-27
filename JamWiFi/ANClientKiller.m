@@ -23,8 +23,8 @@
         [sniffer setDelegate:self];
         [sniffer start];
         
-        NSMutableArray * mChannels = [[NSMutableArray alloc] init];
-        for (CWNetwork * net in networks) {
+        NSMutableArray *mChannels = [[NSMutableArray alloc] init];
+        for (CWNetwork *net in networks) {
             if (![mChannels containsObject:net.wlanChannel]) {
                 [mChannels addObject:net.wlanChannel];
             }
@@ -32,10 +32,10 @@
         channels = [mChannels copy];
         channelIndex = -1;
         
-        NSMutableDictionary * mNetworksPerChannel = [[NSMutableDictionary alloc] init];
-        for (CWChannel * channel in channels) {
-            NSMutableArray * mNetworks = [[NSMutableArray alloc] init];
-            for (CWNetwork * network in networks) {
+        NSMutableDictionary *mNetworksPerChannel = [[NSMutableDictionary alloc] init];
+        for (CWChannel *channel in channels) {
+            NSMutableArray *mNetworks = [[NSMutableArray alloc] init];
+            for (CWNetwork *network in networks) {
                 if ([[network wlanChannel] isEqualToChannel:channel]) {
                     [mNetworks addObject:network];
                 }
@@ -77,19 +77,19 @@
     [doneButton setTarget:self];
     [doneButton setAction:@selector(doneButton:)];
     
-    NSTableColumn * enabledColumn = [[NSTableColumn alloc] initWithIdentifier:@"enabled"];
+    NSTableColumn *enabledColumn = [[NSTableColumn alloc] initWithIdentifier:@"enabled"];
     [[enabledColumn headerCell] setStringValue:@"Jam"];
     [enabledColumn setWidth:30];
     [enabledColumn setEditable:YES];
     [infoTable addTableColumn:enabledColumn];
     
-    NSTableColumn * stationColumn = [[NSTableColumn alloc] initWithIdentifier:@"station"];
+    NSTableColumn *stationColumn = [[NSTableColumn alloc] initWithIdentifier:@"station"];
     [[stationColumn headerCell] setStringValue:@"Station"];
     [stationColumn setWidth:120];
     [stationColumn setEditable:NO];
     [infoTable addTableColumn:stationColumn];
     
-    NSTableColumn * deauthsColumn = [[NSTableColumn alloc] initWithIdentifier:@"count"];
+    NSTableColumn *deauthsColumn = [[NSTableColumn alloc] initWithIdentifier:@"count"];
     [[deauthsColumn headerCell] setStringValue:@"Deauths"];
     [deauthsColumn setWidth:120];
     [deauthsColumn setEditable:NO];
@@ -123,12 +123,12 @@
     [jamTimer invalidate];
     jamTimer = nil;
     [sniffer setDelegate:nil];
-    NSMutableArray * networks = [NSMutableArray array];
+    NSMutableArray *networks = [NSMutableArray array];
     for (id key in networksForChannel) {
         [networks addObjectsFromArray:[networksForChannel objectForKey:key]];
     }
-    ANTrafficGatherer * gatherer = [[ANTrafficGatherer alloc] initWithFrame:self.bounds sniffer:sniffer networks:networks];
-    [(ANAppDelegate *)[NSApp delegate] pushView:gatherer direction:ANViewSlideDirectionBackward];
+    ANTrafficGatherer *gatherer = [[ANTrafficGatherer alloc] initWithFrame:self.bounds sniffer:sniffer networks:networks];
+    [(ANAppDelegate *) [NSApp delegate] pushView:gatherer direction:ANViewSlideDirectionBackward];
 }
 
 - (void)doneButton:(id)sender {
@@ -137,7 +137,7 @@
     [sniffer stop];
     [sniffer setDelegate:nil];
     sniffer = nil;
-    [(ANAppDelegate *)[NSApp delegate] showNetworkList];
+    [(ANAppDelegate *) [NSApp delegate] showNetworkList];
 }
 
 #pragma mark - Table View -
@@ -147,7 +147,7 @@
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    ANClient * client = [clients objectAtIndex:row];
+    ANClient *client = [clients objectAtIndex:row];
     if ([[tableColumn identifier] isEqualToString:@"station"]) {
         return MACToString(client.macAddress);
     } else if ([[tableColumn identifier] isEqualToString:@"count"]) {
@@ -160,7 +160,7 @@
 
 - (NSCell *)tableView:(NSTableView *)tableView dataCellForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     if ([[tableColumn identifier] isEqualToString:@"enabled"]) {
-        NSButtonCell * cell = [[NSButtonCell alloc] init];
+        NSButtonCell *cell = [[NSButtonCell alloc] init];
         [cell setButtonType:NSSwitchButton];
         [cell setTitle:@""];
         return cell;
@@ -169,7 +169,7 @@
 }
 
 - (void)tableView:(NSTableView *)tableView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    ANClient * client = [clients objectAtIndex:row];
+    ANClient *client = [clients objectAtIndex:row];
     if ([[tableColumn identifier] isEqualToString:@"enabled"]) {
         [client setEnabled:[object boolValue]];
     }
@@ -182,16 +182,16 @@
     if (channelIndex >= [channels count]) {
         channelIndex = 0;
     }
-    CWChannel * channel = [channels objectAtIndex:channelIndex];
+    CWChannel *channel = [channels objectAtIndex:channelIndex];
     [sniffer setChannel:channel];
     // deauth all clients on all networks on this channel
-    NSArray * networks = [networksForChannel objectForKey:channel];
-    for (ANClient * client in clients) {
+    NSArray *networks = [networksForChannel objectForKey:channel];
+    for (ANClient *client in clients) {
         if (![client enabled]) continue;
-        for (CWNetwork * network in networks) {
+        for (CWNetwork *network in networks) {
             unsigned char bssid[6];
             copyMAC([network.bssid UTF8String], bssid);
-            AN80211Packet * packet = [self deauthPacketForBSSID:bssid client:client.macAddress];
+            AN80211Packet *packet = [self deauthPacketForBSSID:bssid client:client.macAddress];
             [sniffer writePacket:packet];
             client.deauthsSent += 1;
         }
@@ -205,13 +205,13 @@
     memcpy(&deauth[4], client, 6);
     memcpy(&deauth[10], bssid, 6);
     memcpy(&deauth[16], bssid, 6);
-    AN80211Packet * packet = [[AN80211Packet alloc] initWithData:[NSData dataWithBytes:deauth length:26]];
+    AN80211Packet *packet = [[AN80211Packet alloc] initWithData:[NSData dataWithBytes:deauth length:26]];
     return packet;
 }
 
 - (BOOL)includesBSSID:(const unsigned char *)bssid {
     for (id key in networksForChannel) {
-        for (CWNetwork * network in [networksForChannel objectForKey:key]) {
+        for (CWNetwork *network in [networksForChannel objectForKey:key]) {
             if ([MACToString(bssid) isEqualToString:network.bssid]) {
                 return YES;
             }
@@ -251,9 +251,9 @@
     if (client[0] == 0xFF && client[1] == 0xFF) hasClient = NO;
     if (client[0] == 0x03 && client[5] == 0x01) hasClient = NO;
     if (hasClient) {
-        ANClient * clientObj = [[ANClient alloc] initWithMac:client bssid:bssid];
+        ANClient *clientObj = [[ANClient alloc] initWithMac:client bssid:bssid];
         BOOL containsClient = NO;
-        for (ANClient * aClient in clients) {
+        for (ANClient *aClient in clients) {
             if (memcmp(aClient.macAddress, clientObj.macAddress, 6) == 0) {
                 containsClient = YES;
                 break;

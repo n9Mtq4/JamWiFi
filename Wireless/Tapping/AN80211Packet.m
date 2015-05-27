@@ -13,11 +13,11 @@
 - (id)initWithData:(NSData *)data {
     if ((self = [super init])) {
         if ([data length] < 24) return nil;
-        packetData = (unsigned char *)malloc([data length]);
+        packetData = (unsigned char *) malloc([data length]);
         memcpy(packetData, [data bytes], [data length]);
-        macHeader = (MACHeader *)packetData;
+        macHeader = (MACHeader *) packetData;
         bodyData = packetData + sizeof(MACHeader);
-        packetLength = (int)[data length];
+        packetLength = (int) [data length];
         bodyLength = packetLength - sizeof(MACHeader);
     }
     return self;
@@ -49,11 +49,11 @@
 
 - (uint32_t)dataFCS {
     if (bodyLength < 4) return 0;
-    return *(uint32_t *)(&bodyData[bodyLength - 4]);
+    return *(uint32_t *) (&bodyData[bodyLength - 4]);
 }
 
 - (uint32_t)calculateFCS {
-    return ~crc32((const char *)packetData, packetLength - 4);
+    return ~crc32((const char *) packetData, packetLength - 4);
 }
 
 @end

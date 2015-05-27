@@ -18,8 +18,8 @@
 
 - (id)initWithMac:(const unsigned char *)mac bssid:(const unsigned char *)aBSSID {
     if ((self = [super init])) {
-        macAddress = (unsigned char *)malloc(6);
-        bssid = (unsigned char *)malloc(6);
+        macAddress = (unsigned char *) malloc(6);
+        bssid = (unsigned char *) malloc(6);
         packetCount = 0;
         memcpy(macAddress, mac, 6);
         memcpy(bssid, aBSSID, 6);
@@ -30,11 +30,8 @@
 
 - (BOOL)isEqual:(id)object {
     if (![object isKindOfClass:[self class]]) return NO;
-    ANClient * client = (ANClient *)object;
-    if (memcmp(client.bssid, bssid, 6) == 0 && memcmp(client.macAddress, macAddress, 6) == 0) {
-        return YES;
-    }
-    return NO;
+    ANClient *client = (ANClient *) object;
+    return memcmp(client.bssid, bssid, 6) == 0 && memcmp(client.macAddress, macAddress, 6) == 0;
 }
 
 - (void)dealloc {

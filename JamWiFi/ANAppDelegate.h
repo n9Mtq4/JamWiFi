@@ -17,16 +17,18 @@ typedef enum {
 @class ANListView;
 
 @interface ANAppDelegate : NSObject <NSApplicationDelegate> {
-    NSView * activeView;
-    NSView * nextView;
+    NSView *activeView;
+    NSView *nextView;
     BOOL animating;
-    ANListView * networkList;
+    ANListView *networkList;
 }
 
-@property (assign) IBOutlet NSWindow * window;
+@property(assign) IBOutlet NSWindow *window;
 
 - (void)pushView:(NSView *)view direction:(ANViewSlideDirection)direction;
+
 - (void)animationComplete;
+
 - (void)showNetworkList;
 
 @end

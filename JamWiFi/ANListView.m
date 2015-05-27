@@ -12,6 +12,7 @@
 @interface ANListView (Private)
 
 - (void)handleScanError;
+
 - (void)handleScanSuccess:(NSArray *)theNetworks;
 
 @end
@@ -50,36 +51,36 @@
         [jamButton setFont:[NSFont systemFontOfSize:13]];
         [jamButton setEnabled:NO];
         
-        NSTableColumn * channelColumn = [[NSTableColumn alloc] initWithIdentifier:@"channel"];
+        NSTableColumn *channelColumn = [[NSTableColumn alloc] initWithIdentifier:@"channel"];
         [[channelColumn headerCell] setStringValue:@"CH"];
         [channelColumn setWidth:40];
         [channelColumn setEditable:YES];
         [networksTable addTableColumn:channelColumn];
         
-        NSTableColumn * essidColumn = [[NSTableColumn alloc] initWithIdentifier:@"essid"];
+        NSTableColumn *essidColumn = [[NSTableColumn alloc] initWithIdentifier:@"essid"];
         [[essidColumn headerCell] setStringValue:@"ESSID"];
         [essidColumn setWidth:170];
         [essidColumn setEditable:YES];
         [networksTable addTableColumn:essidColumn];
         
-        NSTableColumn * bssidColumn = [[NSTableColumn alloc] initWithIdentifier:@"bssid"];
+        NSTableColumn *bssidColumn = [[NSTableColumn alloc] initWithIdentifier:@"bssid"];
         [[bssidColumn headerCell] setStringValue:@"BSSID"];
         [bssidColumn setWidth:120];
         [bssidColumn setEditable:YES];
         [networksTable addTableColumn:bssidColumn];
         
-        NSTableColumn * encColumn = [[NSTableColumn alloc] initWithIdentifier:@"enc"];
+        NSTableColumn *encColumn = [[NSTableColumn alloc] initWithIdentifier:@"enc"];
         [[encColumn headerCell] setStringValue:@"Security"];
         [encColumn setWidth:60];
         [encColumn setEditable:YES];
         [networksTable addTableColumn:encColumn];
-      
-        NSTableColumn * rssiColumn = [[NSTableColumn alloc] initWithIdentifier:@"rssi"];
+        
+        NSTableColumn *rssiColumn = [[NSTableColumn alloc] initWithIdentifier:@"rssi"];
         [[rssiColumn headerCell] setStringValue:@"RSSI"];
         [rssiColumn setWidth:60];
         [rssiColumn setEditable:YES];
         [networksTable addTableColumn:rssiColumn];
-      
+        
         [networksScrollView setDocumentView:networksTable];
         [networksScrollView setBorderType:NSBezelBorder];
         [networksScrollView setHasVerticalScroller:YES];
@@ -111,29 +112,29 @@
 }
 
 - (void)disassociateButton:(id)sender {
-    CWInterface * interface = [CWInterface interface];
+    CWInterface *interface = [CWInterface interface];
     [interface disassociate];
 }
 
 - (void)jamButton:(id)sender {
-    NSMutableArray * theNetworks = [NSMutableArray array];
+    NSMutableArray *theNetworks = [NSMutableArray array];
     [[networksTable selectedRowIndexes] enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
         [theNetworks addObject:[networks objectAtIndex:idx]];
     }];
     
-    ANWiFiSniffer * sniffer = [[ANWiFiSniffer alloc] initWithInterfaceName:interfaceName];
-    ANTrafficGatherer * gatherer = [[ANTrafficGatherer alloc] initWithFrame:self.bounds sniffer:sniffer networks:theNetworks];
-    [(ANAppDelegate *)[NSApp delegate] pushView:gatherer direction:ANViewSlideDirectionForward];
+    ANWiFiSniffer *sniffer = [[ANWiFiSniffer alloc] initWithInterfaceName:interfaceName];
+    ANTrafficGatherer *gatherer = [[ANTrafficGatherer alloc] initWithFrame:self.bounds sniffer:sniffer networks:theNetworks];
+    [(ANAppDelegate *) [NSApp delegate] pushView:gatherer direction:ANViewSlideDirectionForward];
 }
 
 - (void)scanInBackground {
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     __weak id weakSelf = self;
     dispatch_async(queue, ^{
-        CWInterface * interface = [CWInterface interface];
+        CWInterface *interface = [CWInterface interface];
         interfaceName = interface.interfaceName;
-        NSError * error = nil;
-        NSArray * nets = [[interface scanForNetworksWithSSID:nil error:&error] allObjects];
+        NSError *error = nil;
+        NSArray *nets = [[interface scanForNetworksWithSSID:nil error:&error] allObjects];
         if (error) NSLog(@"wifi scan error: %@", error);
         if (!nets) {
             [weakSelf performSelectorOnMainThread:@selector(handleScanError) withObject:nil waitUntilDone:NO];
@@ -148,10 +149,10 @@
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    CWNetwork * network = [networks objectAtIndex:row];
+    CWNetwork *network = [networks objectAtIndex:row];
     
     if ([[tableColumn identifier] isEqualToString:@"channel"]) {
-        return [NSNumber numberWithInt:(int)network.wlanChannel.channelNumber];
+        return [NSNumber numberWithInt:(int) network.wlanChannel.channelNumber];
     } else if ([[tableColumn identifier] isEqualToString:@"essid"]) {
         return network.ssid;
     } else if ([[tableColumn identifier] isEqualToString:@"bssid"]) {
@@ -194,12 +195,12 @@
     [progressIndicator stopAnimation:self];
     [scanButton setEnabled:YES];
     NSRunAlertPanel(@"Scan Failed", @"A network scan could not be completed at this time.",
-                    @"OK", nil, nil);
+            @"OK", nil, nil);
 }
 
 - (void)handleScanSuccess:(NSArray *)theNetworks {
-    NSMutableArray * newNetworks = [theNetworks mutableCopy];
-    for (CWNetwork * network in networks) {
+    NSMutableArray *newNetworks = [theNetworks mutableCopy];
+    for (CWNetwork *network in networks) {
         if (![newNetworks containsObject:network]) {
             [newNetworks addObject:network];
         }

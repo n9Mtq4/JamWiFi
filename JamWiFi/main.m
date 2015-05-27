@@ -6,10 +6,6 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
-#import <ServiceManagement/ServiceManagement.h>
-#import <Security/Authorization.h>
-
 int main(int argc, char *argv[]) {
     
     @autoreleasepool {
@@ -24,10 +20,10 @@ int main(int argc, char *argv[]) {
             AuthorizationItem myItems = {kAuthorizationRightExecute, 0, NULL, 0};
             AuthorizationRights myRights = {1, &myItems};
             myFlags = kAuthorizationFlagDefaults |
-            kAuthorizationFlagInteractionAllowed |
-            kAuthorizationFlagPreAuthorize |
-            kAuthorizationFlagExtendRights;
-            myStatus = AuthorizationCopyRights(myAuthorizationRef, &myRights, NULL, myFlags, NULL );
+                    kAuthorizationFlagInteractionAllowed |
+                    kAuthorizationFlagPreAuthorize |
+                    kAuthorizationFlagExtendRights;
+            myStatus = AuthorizationCopyRights(myAuthorizationRef, &myRights, NULL, myFlags, NULL);
             
             
             if (myStatus != errAuthorizationSuccess) {
@@ -36,15 +32,15 @@ int main(int argc, char *argv[]) {
             }
             
             
-            const char * myToolPath = [[[NSBundle mainBundle] executablePath] UTF8String];
-            char * myArguments[] = {NULL};
+            const char *myToolPath = [[[NSBundle mainBundle] executablePath] UTF8String];
+            char *myArguments[] = {NULL};
             
             myFlags = kAuthorizationFlagDefaults;
             myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, myToolPath, myFlags, myArguments,
-                                                          NULL);
+                    NULL);
             AuthorizationFree(myAuthorizationRef, kAuthorizationFlagDefaults);
             exit(0);
         }
-        return NSApplicationMain(argc, (const char **)argv);
+        return NSApplicationMain(argc, (const char **) argv);
     }
 }
