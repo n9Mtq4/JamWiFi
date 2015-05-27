@@ -40,7 +40,7 @@
                     [mNetworks addObject:network];
                 }
             }
-            [mNetworksPerChannel setObject:[mNetworks copy] forKey:channel];
+            mNetworksPerChannel[channel] = [mNetworks copy]; // modified w/ app code
         }
         networksForChannel = [mNetworksPerChannel copy];
         
@@ -125,7 +125,7 @@
     [sniffer setDelegate:nil];
     NSMutableArray *networks = [NSMutableArray array];
     for (id key in networksForChannel) {
-        [networks addObjectsFromArray:[networksForChannel objectForKey:key]];
+        [networks addObjectsFromArray:networksForChannel[key]]; // modified w/ app code
     }
     ANTrafficGatherer *gatherer = [[ANTrafficGatherer alloc] initWithFrame:self.bounds sniffer:sniffer networks:networks];
     [(ANAppDelegate *) [NSApp delegate] pushView:gatherer direction:ANViewSlideDirectionBackward];
@@ -137,7 +137,7 @@
     [sniffer stop];
     [sniffer setDelegate:nil];
     sniffer = nil;
-    [(ANAppDelegate *) [NSApp delegate] showNetworkList];
+    [[NSApp delegate] showNetworkList]; // modified w/ app code
 }
 
 #pragma mark - Table View -
@@ -147,13 +147,13 @@
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    ANClient *client = [clients objectAtIndex:row];
+    ANClient *client = clients[row]; // modified w/ app code
     if ([[tableColumn identifier] isEqualToString:@"station"]) {
         return MACToString(client.macAddress);
     } else if ([[tableColumn identifier] isEqualToString:@"count"]) {
-        return [NSNumber numberWithInt:client.deauthsSent];
+        return @(client.deauthsSent); // modified w/ app code
     } else if ([[tableColumn identifier] isEqualToString:@"enabled"]) {
-        return [NSNumber numberWithBool:client.enabled];
+        return @(client.enabled); // modified w/ app code
     }
     return nil;
 }
@@ -169,7 +169,7 @@
 }
 
 - (void)tableView:(NSTableView *)tableView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    ANClient *client = [clients objectAtIndex:row];
+    ANClient *client = clients[row]; // modified w/ app code
     if ([[tableColumn identifier] isEqualToString:@"enabled"]) {
         [client setEnabled:[object boolValue]];
     }
@@ -182,10 +182,10 @@
     if (channelIndex >= [channels count]) {
         channelIndex = 0;
     }
-    CWChannel *channel = [channels objectAtIndex:channelIndex];
+    CWChannel *channel = channels[channelIndex]; // modified w/ app code
     [sniffer setChannel:channel];
     // deauth all clients on all networks on this channel
-    NSArray *networks = [networksForChannel objectForKey:channel];
+    NSArray *networks = networksForChannel[channel]; // modified w/ app code
     for (ANClient *client in clients) {
         if (![client enabled]) continue;
         for (CWNetwork *network in networks) {
@@ -211,7 +211,7 @@
 
 - (BOOL)includesBSSID:(const unsigned char *)bssid {
     for (id key in networksForChannel) {
-        for (CWNetwork *network in [networksForChannel objectForKey:key]) {
+        for (CWNetwork *network in networksForChannel[key]) { // modified w/ app code
             if ([MACToString(bssid) isEqualToString:network.bssid]) {
                 return YES;
             }

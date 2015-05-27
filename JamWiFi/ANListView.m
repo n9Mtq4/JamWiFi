@@ -119,7 +119,7 @@
 - (void)jamButton:(id)sender {
     NSMutableArray *theNetworks = [NSMutableArray array];
     [[networksTable selectedRowIndexes] enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
-        [theNetworks addObject:[networks objectAtIndex:idx]];
+        [theNetworks addObject:networks[idx]]; // modified w/ app code
     }];
     
     ANWiFiSniffer *sniffer = [[ANWiFiSniffer alloc] initWithInterfaceName:interfaceName];
@@ -149,10 +149,10 @@
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    CWNetwork *network = [networks objectAtIndex:row];
+    CWNetwork *network = networks[row]; // modified w/ app code
     
     if ([[tableColumn identifier] isEqualToString:@"channel"]) {
-        return [NSNumber numberWithInt:(int) network.wlanChannel.channelNumber];
+        return @((int) network.wlanChannel.channelNumber); // modified w/ app code
     } else if ([[tableColumn identifier] isEqualToString:@"essid"]) {
         return network.ssid;
     } else if ([[tableColumn identifier] isEqualToString:@"bssid"]) {
@@ -160,7 +160,7 @@
     } else if ([[tableColumn identifier] isEqualToString:@"enc"]) {
         return [self securityTypeString:network];
     } else if ([[tableColumn identifier] isEqualToString:@"rssi"]) {
-        return [[NSNumber numberWithInteger:network.rssiValue] description];
+        return [@(network.rssiValue) description]; // modified w/ app code
     }
     return nil;
 }
@@ -170,11 +170,7 @@
 }
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification {
-    if ([[networksTable selectedRowIndexes] count] > 0) {
-        [jamButton setEnabled:YES];
-    } else {
-        [jamButton setEnabled:NO];
-    }
+    [jamButton setEnabled:[[networksTable selectedRowIndexes] count] > 0]; // modified w/ app code
 }
 
 - (NSString *)securityTypeString:(CWNetwork *)network {

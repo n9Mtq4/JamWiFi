@@ -119,21 +119,21 @@
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    ANClient *client = [allClients objectAtIndex:row];
+    ANClient *client = allClients[row]; // modified w/ app code
     if ([[tableColumn identifier] isEqualToString:@"station"]) {
         return MACToString(client.macAddress);
     } else if ([[tableColumn identifier] isEqualToString:@"bssid"]) {
         return MACToString(client.bssid);
     } else if ([[tableColumn identifier] isEqualToString:@"count"]) {
-        return [NSNumber numberWithInt:client.packetCount];
+        return @(client.packetCount); // modified w/ app code
     } else if ([[tableColumn identifier] isEqualToString:@"enabled"]) {
-        return [NSNumber numberWithBool:client.enabled];
+        return @(client.enabled); // modified w/ app code
     }
     return nil;
 }
 
 - (void)tableView:(NSTableView *)tableView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    ANClient *client = [allClients objectAtIndex:row];
+    ANClient *client = allClients[row]; // modified w/ app code
     if ([[tableColumn identifier] isEqualToString:@"enabled"]) {
         client.enabled = [object boolValue];
     }
@@ -165,7 +165,7 @@
     if (channelIndex >= [channels count]) {
         channelIndex = 0;
     }
-    [sniffer setChannel:[channels objectAtIndex:channelIndex]];
+    [sniffer setChannel:channels[channelIndex]]; // modified w/ app code
 }
 
 #pragma mark WiFi Sniffer
@@ -209,7 +209,7 @@
         if (![allClients containsObject:clientObj]) {
             [allClients addObject:clientObj];
         } else {
-            ANClient *origClient = [allClients objectAtIndex:[allClients indexOfObject:clientObj]];
+            ANClient *origClient = allClients[[allClients indexOfObject:clientObj]]; // modified w/ app code
             origClient.packetCount += 1;
         }
         [clientsTable reloadData];
